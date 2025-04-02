@@ -14,56 +14,13 @@ public class VisiCalcUI {
 
     public void iniciar() {
         boolean estaOperativo = true;
-
         while (estaOperativo) {
             mostrarHoja();
             char comando = scanner.next().toUpperCase().charAt(0);
             estaOperativo = procesarComando(comando);
         }
-
         System.out.println("Saliendo del programa.");
         scanner.close();
-    }
-
-    private void mostrarHoja() {
-        Consola.limpiarPantalla();
-        mostrarOpciones();
-        System.out.print("      ");
-        for (int j = 0; j < viewport.getColumnasViewport(); j++) {
-            char letraColumna = (char) ('A' + viewport.getColumnaInicio() + j);
-            System.out.printf("%-8s", letraColumna);
-        }
-        System.out.println();
-
-        for (int i = 0; i < viewport.getFilasViewport(); i++) {
-            System.out.printf("%-5d|", viewport.getFilaInicio() + i + 1);
-
-            for (int j = 0; j < viewport.getColumnasViewport(); j++) {
-                String celda = viewport.getCelda(i, j).getContenido();
-                celda = celda.length() > 5 ? celda.substring(0, 5) : String.format("%-5s", celda);
-                
-                if (i == viewport.getFilaCursorGlobal() - viewport.getFilaInicio() && j == viewport.getColumnaCursorGlobal() - viewport.getColumnaInicio()) {
-                    System.out.print("[" + celda + "]");
-                } else {
-                    System.out.print(" " + celda + " ");
-                }
-                System.out.print("|");
-            }
-            System.out.println();
-        }
-        Consola.posicionarse(2, 10);
-    }
-
-    private void mostrarOpciones() {
-
-        int filaActual = viewport.getFilaCursorGlobal();
-        int columnaActual = viewport.getColumnaCursorGlobal();
-        char letraColumna = (char) ('A' + columnaActual);
-
-        System.out.print("[" + letraColumna + (filaActual + 1) + "] ");
-        System.out.println("OPCIONES: desplazarse: wasd | editar: e | salir: q");
-        System.out.println("COMANDO >");        
-
     }
 
     private boolean procesarComando(char comando) {
@@ -83,6 +40,9 @@ public class VisiCalcUI {
             case 'E':
                 editarCeldaActual();
                 break;
+            case 'O':
+                ordenarColumna();
+                break;
             case 'Q':
                 return false;
             default:
@@ -91,11 +51,20 @@ public class VisiCalcUI {
         return true;
     }
 
-    private void editarCeldaActual() {
-        Celda celdaActual = viewport.getCeldaCursor();
-        Consola.posicionarse(2, 1);
-        System.out.print ("Ingrese el texto:");
-        String texto = scanner.next();
-        celdaActual.setContenido(texto);
+    private void ordenarColumna() {
+        System.out.print("Ingrese la columna a ordenar (A-Z): ");
+        char columnaChar = scanner.next().toUpperCase().charAt(0);
+        int columna = columnaChar - 'A';
+
+        System.out.print("Ingrese la fila de inicio: ");
+        int filaInicio = scanner.nextInt() - 1;
+
+        System.out.print("Ingrese la fila de fin: ");
+        int filaFin = scanner.nextInt() - 1;
+
+        System.out.print("Orden ascendente? (S/N): ");
+        boolean ascendente = scanner.next().equalsIgnoreCase("S");
+
+        viewport.getHoja().ordenarColumna(columna, filaInicio, filaFin, ascendente);
     }
 }
